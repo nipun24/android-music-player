@@ -2,9 +2,14 @@ package com.whatthecode.musicplayer.activities;
 
 import android.Manifest;
 import android.app.Application;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -17,13 +22,17 @@ import android.widget.ListView;
 import com.whatthecode.musicplayer.R;
 import com.whatthecode.musicplayer.adapters.HomePageAdapter;
 import com.whatthecode.musicplayer.models.Track;
+import com.whatthecode.musicplayer.services.MusicService;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<Track> trackList;
-    private ListView songView;
+    // Music Service variables
+    private MusicService musicService;
+    private Intent musicIntent;
+    private boolean serviceBound = false;
+    // Permission return code. The number doesnt signify anything. Its just a random number.
     private static final int EXTERNAL_STORAGE_REQUEST_CODE = 892;
 
     @Override
@@ -40,6 +49,32 @@ public class MainActivity extends AppCompatActivity {
             Init();
         }
     }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (musicIntent == null) {
+            musicIntent = new Intent(this, MusicService.class);
+            bindService(musicIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(musicIntent);
+        }
+    }
+
+    private ServiceConnection musicConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            // get service
+            musicService = binder.getService();
+            serviceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+    };
 
     /**
      * Load the UI

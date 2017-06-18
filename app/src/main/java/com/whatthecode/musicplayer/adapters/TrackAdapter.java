@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.whatthecode.musicplayer.MusicPlayer;
 import com.whatthecode.musicplayer.R;
 import com.whatthecode.musicplayer.models.Track;
 
@@ -23,6 +24,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ItemHolder> 
     public TrackAdapter(Context _context, ArrayList<Track> _tracks) {
         this.context = _context;
         this.tracks = _tracks;
+        MusicPlayer.setServiceTrackList(_tracks);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ItemHolder> 
 
         @Override
         public void onClick(View v) {
-
+            MusicPlayer.playTrackAtIndex(getAdapterPosition());
         }
     }
 }

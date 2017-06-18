@@ -12,8 +12,6 @@ import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.whatthecode.musicplayer.models.Track;
-
 import java.util.ArrayList;
 
 /**
@@ -25,7 +23,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     // Media Player
     private MediaPlayer player;
     // Track List
-    private ArrayList<Track> tracks;
+    private ArrayList<Long> track_ids;
     // track position
     private int trackPosition;
 
@@ -54,14 +52,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player.setOnErrorListener(this);
     }
 
-
-    public void playSong(){
+    /**
+     * Plays the current song specified by the track Id
+     */
+    public void playTrack(){
         // play the current song
         // stop any currently playing song
         player.reset();
 
         // get track id
-        long track_id = tracks.get(trackPosition).id;
+        long track_id = track_ids.get(trackPosition);
         // get uri
         Uri trackUri = ContentUris.withAppendedId(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, track_id
@@ -76,8 +76,47 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player.prepareAsync();
     }
 
-    public void setTrackList(ArrayList<Track> tracks) {
-        this.tracks = tracks;
+    /**
+     * Plays the next song in the Id list
+     */
+    public void playNext() {
+        if (trackPosition < track_ids.size() - 1)
+        {
+            trackPosition++;
+        } else {
+            trackPosition = 0;
+        }
+        playTrack();
+    }
+
+    /**
+     * Plays the previous song
+     */
+    public void playPrevious() {
+        if (trackPosition > 0)
+        {
+            trackPosition--;
+        } else {
+            trackPosition = track_ids.size() - 1;
+        }
+        playTrack();
+    }
+
+    /**
+     * Set the track position
+     * @param position
+     */
+    public void setTrackPosition(int position) {
+        trackPosition = position;
+    }
+
+    /**
+     * Set the track Id list for playback. Sets position = 0
+     * @param _track_ids
+     */
+    public void setTrackList(ArrayList<Long> _track_ids) {
+        this.track_ids = _track_ids;
+        trackPosition = 0;
     }
 
     @Override
@@ -94,7 +133,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        // if completed,
+        // if autoplay
+        // play the next
     }
 
     @Override
